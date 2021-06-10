@@ -2,6 +2,8 @@
 library(ggplot2); library(dplyr); library(corrr):library(caret)
 #
       alldata<- read.csv('all_for_graphs.csv')
+     # alldata.orig<- alldata
+     # alldata$vg <- 0.3*0.1*alldata$vg #here i converted vg from velosity to flowrate of intake air
       str(alldata)
       
       
@@ -22,13 +24,13 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         geom_point()
       
       ggplot(rls.data,  aes(x= vg, y=driftmgkg))+
-        geom_point()+ ylim(c(0, 6e-4))+stat_smooth(method = 'lm')+
-        labs(title = 'Solvent drift VS intake air velocity', x= 'Intake air velocity (m/s)', y= 'Solvent drift (mg/kg)')+
+        geom_point()+stat_smooth(method = 'lm')+
+        labs(title = 'Solvent drift VS Air flowrate', x= 'Air flowrate (m3/s)', y= 'Solvent drift (mg/kg)')+
         theme_bw()
       
       ggplot(rls.data,  aes(x= vg, y=dustrak))+
         geom_point()+stat_smooth(method = 'lm')+
-        labs(title = 'PM10 emissions VS intake air velocity', x= 'Intake air velocity (m/s)', y= 'PM10 emissions (mg/m3)')+
+        labs(title = 'PM10 emissions VS Air flowrate', x= 'Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')+
         theme_bw()
 
 #Cooling tower
@@ -46,17 +48,17 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
       ggplot(ct.data, aes(x= vg, y= driftmgkg))+
         geom_point()+facet_wrap(.~packing)+
         ylim(c(0.02,38/1000))+stat_smooth(method = 'lm')+ 
-        theme_bw()+ labs(title = 'Solvent drift VS intake air velocity', x= 'Intake air velocity (m/s)', y= 'Solvent drift (%)')
+        theme_bw()+ labs(title = 'Solvent drift VS Air flowrate', x= 'Air flowrate (m3/s)', y= 'Solvent drift (%)')
       
       ggplot(ct.data, aes(x= vg, y= dustrak))+
         geom_point()+facet_wrap(.~packing)+
         ylim(c(0,38/1000))+stat_smooth(method = 'lm')+
-        theme_bw()+ labs(title = 'PM10 emissions VS intake air velocity', x= 'Intake air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
+        theme_bw()+ labs(title = 'PM10 emissions VS Air flowrate', x= 'Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
 
       ggplot(ct.data, aes(x= vg, y= dustrak))+
         geom_point()+facet_wrap(packing~disb)+
         ylim(c(0,40/1000))+stat_smooth(method = 'lm')+
-        theme_bw()+ labs(title = 'PM10 emissions VS intake air velocity', x= 'Intake air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
+        theme_bw()+ labs(title = 'PM10 emissions VS Air flowrate', x= 'Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
       
             
       ggplot(ct.data, aes(x=as.factor(ct.data$fliq)))+
@@ -104,16 +106,16 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
       
       
       ggplot(pc.data, aes(x= as.factor(pc.data$vg), y= dustrak/2+mass/2000))+geom_boxplot()+facet_wrap(.~packing)+
-      theme_bw()+labs(title = 'PM10 emissions VS Intake air velocity', x='Intake air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
+      theme_bw()+labs(title = 'PM10 emissions VS Air flowrate', x='Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
       
       ggplot(pc.data, aes(x= as.factor(pc.data$fliq), y= driftmgkg))+geom_boxplot()+facet_wrap(.~packing)+
       theme_bw()+labs(title = 'Sovent drift VS Solvent flowrate', x='Sovent flowrate (lit/min)', y= 'Solvent drift (%)')
       
       ggplot(pc.data, aes(x= as.factor(pc.data$vg), y= driftmgkg))+geom_boxplot()+facet_wrap(.~packing)+
-        theme_bw()+labs(title = 'Sovent drift VS intake air velocity', x='Intake air velocity (m/s)', y= 'Solvent drift (%)')
+        theme_bw()+labs(title = 'Sovent drift VS Air flowrate', x='Air flowrate (m3/s)', y= 'Solvent drift (%)')
       
       ggplot(pc.data, aes(x= as.factor(pc.data$vg), y= dustrak/2+mass/2000))+geom_boxplot()+facet_wrap(.~packing)+
-      theme_bw()+labs(title = 'PM10 emissions VS Intake air velocity', x='Intake air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
+      theme_bw()+labs(title = 'PM10 emissions VS Air flowrate', x='Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
 
       
       
@@ -132,8 +134,19 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         geom_boxplot()+ theme_bw()+ xlim(c( 'ct','rls', 'pc'))
       ggplot(alldata, aes(x= vg, y= dustrak))+ 
         facet_grid(.~device)+
-        geom_point(aes(size= fliq, color= packing), alpha=.5)+
+        geom_point(aes(size=log10(fliq), color= packing), alpha=.5)+
         stat_smooth(method = 'lm', aes(color= packing))+theme_bw()
-        
-
+     #drift for all   
+      ggplot(alldata, aes(x= vg, y= driftmgkg))+ 
+        facet_grid(.~device)+
+        geom_point(aes(size=log10(fliq), color= packing), alpha=.5)+
+        stat_smooth(method = 'lm', aes(color= packing))+theme_bw()
+      
+      #solvwnt loss mg per hr
+      
+      #drift for all   
+      ggplot(alldata, aes(x= vg, y= driftmgkg*fliq*1.2*60))+ 
+        facet_grid(.~device)+
+        geom_point(aes(size=(fliq), color= packing), alpha=.5)+
+        stat_smooth(method = 'lm', aes(color= packing))+theme_bw()
              
