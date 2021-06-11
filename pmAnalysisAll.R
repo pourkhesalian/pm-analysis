@@ -32,7 +32,7 @@ library(corrr)
 
 #preliminary graphs
       ggplot(originalData, aes(x= vg, y= dustrak))+ 
-        geom_point(aes(color= type))+ geom_smooth(method = 'lm', aes(color= type))
+        geom_point(aes(color= type))+ geom_smooth(method = 'lm', aes(color= type))+ theme_bw()+scale_y_log10()
       
       ggplot(originalData, aes(x= fliq, y= dustrak))+ 
         geom_point(aes(color= type))+ geom_smooth(method = 'lm', aes(color= type))+
@@ -53,11 +53,11 @@ library(corrr)
         select(-time, -run.,-type, -disb,-fliqkghour, -flowrate1,-tgout, -tliqo, -vol,-pmmghour)
 
 #more graph
-      ggplot(coolingtower, aes(x= disb, y= mass)) + 
-        ylim(c(0,100))+
+    plot01<-  ggplot(coolingtower, aes(x= disb, y= mass)) + 
+        ylim(c(0,50))+
         geom_boxplot()+ theme_bw()+
         ggtitle('PM10 emissions from cooling tower by different distributors')+
-        xlab('Distributor type')+ylab('PM10 emissions (ugr/m3)')
+        xlab('Distributor type')+ylab('PM10 emissions (\u03BCgr/m3)')
 
 #perparation for imputing NAs
 #converting factors from chars to numbers
@@ -125,3 +125,4 @@ head(rls)
 rlspackcolumnanalysis <- full_join(rlsanalysis,packcolumanalysis)
 
 allanalysis<- full_join(rlspackcolumnanalysis, coolingtoweranalysis)
+plot01
