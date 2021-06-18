@@ -179,7 +179,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         stat_smooth(method = 'lm', aes(color= packing))+theme_bw()+
         labs(title='Solvent loss VS Air flowrate', x='Air flowrate (m3/s)', y='Solvent loss rate (mg/hr)')
 
-        
+     
         
      alldatatabulte<-alldata %>% 
         group_by( device,packing,disb, medium, fliq) %>% 
