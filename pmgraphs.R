@@ -24,9 +24,9 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         geom_point()
       
     plot01<-  ggplot(rls.data,  aes(x= vg, y=driftmgkg))+
-        geom_point()+stat_smooth(method = 'lm')+
+        geom_point()+stat_smooth( formula = y~ poly(x,2),method = 'lm')+
         labs(title = 'Solvent drift VS Air flowrate in RLS', x= 'Air flowrate (m3/s)', y= 'Solvent drift (mg/kg)')+
-        theme_bw()
+        theme_bw()+ ylim(c(0,0.03))
       
       plot02<- ggplot(rls.data,  aes(x= vg, y=dustrak))+
         geom_point()+stat_smooth(method = 'lm')+
