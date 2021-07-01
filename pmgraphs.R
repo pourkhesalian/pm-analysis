@@ -3,8 +3,18 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
 #
       alldata<- read.csv('all_for_graphs.csv')
      # alldata.orig<- alldata
-      alldata$vg <- 0.3*0.1*alldata$vg #here i converted vg from velosity to flowrate of intake air
-      str(alldata)
+     
+     
+#      alldata$vg <- 0.3*0.1*alldata$vg #here i converted vg from velosity to flowrate of intake air
+      
+#      alldata$airflow <-alldata$vg 
+#      str(alldata)
+#Here I am calculating the velocity going through the packing      
+#      alldata$airflow[which(alldata$device=='rls')] <- alldata$airflow[which(alldata$device=='rls')] * 3.14*(.6*.6)/4
+#      alldata$airflow[which(alldata$device=='pc')] <- alldata$airflow[which(alldata$device=='pc')] * 3.14*(.45*.45)/4
+#      alldata$airflow[which(alldata$device=='ct')] <- alldata$airflow[which(alldata$device=='ct')] * (.6*.6)
+#puting the calculated airflow into the vg
+      
       
       
 # tg out for pack column is filled with NAs to fix this, I use preprocess
@@ -25,12 +35,16 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
       
     plot01<-  ggplot(rls.data,  aes(x= vg, y=driftmgkg))+
         geom_point()+stat_smooth( formula = y~ poly(x,2),method = 'lm')+
-        labs(title = 'Solvent drift VS Air flowrate in RLS', x= 'Air flowrate (m3/s)', y= 'Solvent drift (mg/kg)')+
+        labs(title = 'Solvent drift VS Air velocity in RLS', x= 'Air velocity (m/s)', y= 'Solvent drift (mg/kg)')+
         theme_bw()+ ylim(c(0,0.03))
+    plot01.1 <- ggplot(rls.data,  aes(x= airflow, y=driftmgkg))+
+      geom_point()+stat_smooth( formula = y~ poly(x,2),method = 'lm')+
+      labs(title = 'Solvent drift VS Air flowrate in RLS', x= 'Air flowrate(m3/s)', y= 'Solvent drift (mg/kg)')+
+      theme_bw()+ ylim(c(0,0.03))
       
       plot02<- ggplot(rls.data,  aes(x= vg, y=dustrak))+
         geom_point()+stat_smooth(method = 'lm')+
-        labs(title = 'PM10 emissions VS Air flowrate', x= 'Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')+
+        labs(title = 'PM10 emissions VS Air velocity', x= 'Air velocity (m/s)', y= 'PM10 emissions (mg/m3)')+
         theme_bw()
 
 #Cooling tower
@@ -39,7 +53,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         correlate()%>%
         network_plot(colours = c('blue', 'white', 'red'),
                      min_cor=.5)
-      plot03<- ggplot(ct.data, aes(x= disb, y= mass/1000))+geom_boxplot()+ylim(c(0,0.050))+
+      plot03<- ggplot(ct.data, aes(x= disb, y= mass/1000))+geom_boxplot()+#ylim(c(0,0.050))+
         theme_bw()+labs(title = 'PM10 emissions VS Dristributor type in cooling tower',x= 'Distributor type',y= 'PM10 emissions (mg/m3)')
       
       
@@ -48,17 +62,24 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
       plot04<- ggplot(ct.data, aes(x= vg, y= driftmgkg))+
         geom_point()+facet_wrap(.~packing)+
         ylim(c(0.02,38/1000))+stat_smooth(method = 'lm')+ 
-        theme_bw()+ labs(title = 'Solvent drift VS Air flowrate in cooling tower', x= 'Air flowrate (m3/s)', y= 'Solvent drift (%)')
+        theme_bw()+ labs(title = 'Solvent drift VS Air velocity in cooling tower', x= 'Air velocity (m/s)', y= 'Solvent drift (mg/kg)')
+      
+      ggplot(ct.data[-87,])+
+        geom_point(aes(x= vg, y= dp))+
+        geom_smooth(aes(x= vg, y= dp), method = 'lm')+ 
+        facet_wrap(.~packing)+
+        theme_bw()+
+        labs(title= 'Pressure drop accross the fill blocks VS Air velocity', x= 'Air velocity (m/s)', y= 'Pressure drop (mmWC)')
       
       plot05 <- ggplot(ct.data, aes(x= vg, y= dustrak))+
         geom_point()+facet_wrap(.~packing)+
         ylim(c(0,38/1000))+stat_smooth(method = 'lm')+
-        theme_bw()+ labs(title = 'PM10 emissions VS Air flowrate in cooling tower', x= 'Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
+        theme_bw()+ labs(title = 'PM10 emissions VS Air velocity in cooling tower', x= 'Air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
 
       plot06 <- ggplot(ct.data, aes(x= vg, y= dustrak))+
         geom_point()+facet_wrap(packing~disb)+
         ylim(c(0,40/1000))+stat_smooth(method = 'lm')+
-        theme_bw()+ labs(title = 'PM10 emissions VS Air flowrate in cooling tower', x= 'Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
+        theme_bw()+ labs(title = 'PM10 emissions VS Air velocity in cooling tower', x= 'Air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
       
             
       plot07 <- ggplot(ct.data, aes(x=as.factor(ct.data$fliq)))+
@@ -99,7 +120,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         geom_point(aes(color= packing))+
         stat_smooth(method = 'lm', aes(color= packing))+
         theme_bw()+
-        labs(title= 'Pressure drop VS air flowrate in packed column')
+        labs(title= 'Pressure drop VS Air velocity in packed column')
 
       
       plot10 <- ggplot(pc.data, aes(x= as.factor(pc.data$fliq), y= dustrak/2+mass/2000))+
@@ -110,16 +131,16 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
       
       
       plot11 <- ggplot(pc.data, aes(x= as.factor(pc.data$vg), y= dustrak/2+mass/2000))+geom_boxplot()+facet_wrap(.~packing)+
-      theme_bw()+labs(title = 'PM10 emissions VS Air flowrate in packed column', x='Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
+      theme_bw()+labs(title = 'PM10 emissions VS Air velocity in packed column', x='Air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
       
       plot12 <- ggplot(pc.data, aes(x= as.factor(pc.data$fliq), y= driftmgkg))+geom_boxplot()+facet_wrap(.~packing)+
       theme_bw()+labs(title = 'Sovent drift VS Solvent in packed column', x='Sovent flowrate (lit/min)', y= 'Solvent drift (mgr/kg)')
       
       plot13 <- ggplot(pc.data, aes(x= as.factor(pc.data$vg), y= driftmgkg))+geom_boxplot()+facet_wrap(.~packing)+
-        theme_bw()+labs(title = 'Sovent drift VS Air flowrate in packed column', x='Air flowrate (m3/s)', y= 'Solvent drift (mgr/kg)')
+        theme_bw()+labs(title = 'Sovent drift VS Air velocity in packed column', x='Air velocity (m/s)', y= 'Solvent drift (mgr/kg)')
       
       plot14 <- ggplot(pc.data, aes(x= as.factor(pc.data$vg), y= dustrak/2+mass/2000))+geom_boxplot()+facet_wrap(.~packing)+
-      theme_bw()+labs(title = 'PM10 emissions VS Air flowrate in packed column', x='Air flowrate (m3/s)', y= 'PM10 emissions (mg/m3)')
+      theme_bw()+labs(title = 'PM10 emissions VS Air velocity in packed column', x='Air velocity (m/s)', y= 'PM10 emissions (mg/m3)')
 
       
       
@@ -137,7 +158,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         
       
       plot16 <- ggplot(alldata, aes(x= device, y= nc)) +
-        geom_boxplot()+ theme_bw()+ xlim(c( 'pc','ct', 'rls'))+
+        geom_boxplot()+ theme_bw()+ xlim(c( 'ct','pc', 'rls'))+
         ylim(c(0, 60000))+
         labs(title= 'Particle number concentration for different contactors', 
              x= ' Device',
@@ -152,7 +173,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
       
       
       plot18 <- ggplot(alldata, aes(x= device, y= cmd)) +
-        geom_boxplot()+ theme_bw()+ xlim(c( 'ct','rls', 'pc'))+
+        geom_boxplot()+ theme_bw()+ xlim(c( 'ct','pc', 'rls'))+
         labs(title= 'Particulate matter median diameter for different contactors', 
              x= ' Device',
              y= 'Median diameter (nm)')+
@@ -168,7 +189,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         facet_grid(.~device)+
         geom_point(aes(size=fliq, color= packing), alpha=.5)+
         stat_smooth(method = 'lm', aes(color= packing))+theme_bw()+
-        labs(title='Solvent loss VS Air flowrate', x='Air flowrate (m3/s)', y='Drift (mg/kg)')+ ylim(c(0,.1))
+        labs(title='Solvent loss VS Air velocity', x='Air velocity (m/s)', y='Drift (mg/kg)')+ ylim(c(0,.1))
       
       #solvwnt loss mg per hr
       
@@ -177,7 +198,7 @@ library(ggplot2); library(dplyr); library(corrr):library(caret)
         facet_grid(.~device)+
         geom_point(aes(size=fliq, color= packing), alpha=.5)+
         stat_smooth(method = 'lm', aes(color= packing))+theme_bw()+
-        labs(title='Solvent loss VS Air flowrate', x='Air flowrate (m3/s)', y='Solvent loss rate (mg/hr)')
+        labs(title='Solvent loss VS Air velocity', x='Air velocity (m/s)', y='Solvent loss rate (mg/hr)')
 
      
         
