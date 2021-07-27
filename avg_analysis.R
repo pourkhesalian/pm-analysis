@@ -1,5 +1,5 @@
 #new graphs from the averaged data
-
+library(ggplot2)
 
 avgdata <- read.csv('avgDriftForR.csv')
 str(avgdata)
