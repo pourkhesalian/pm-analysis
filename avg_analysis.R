@@ -11,3 +11,4 @@ ggplot(data= avgdata, aes(x= vg, y= kgdriftpabs, color= device))+
   labs(title = 'Solvent loss VS air velocity for different devices and defferent flowrates', 
        x='Air velocity (m/s)', 
        y= 'kg Solvent loss per ton of CO2 absorbed (kg/ton)')
+#avg analysis
